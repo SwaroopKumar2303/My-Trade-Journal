@@ -1,0 +1,3729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta name="theme-color" content="#111827">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="icon" href="icon.svg">
+<title>My Trading Journal</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html{
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  margin:0;
+  font-family:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+  background:#f4f6f8;
+  color:#111827;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+header{
+  background:#111827;
+  color:white;
+  padding:20px 18px 16px;
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+
+header h1{
+  margin:0;
+  font-size:21px;
+}
+
+header p{
+  margin:5px 0 0;
+  color:#cbd5e1;
+  font-size:13px;
+}
+
+nav{
+  display:flex;
+  background:white;
+  border-bottom:1px solid #e5e7eb;
+  position:sticky;
+  top:76px;
+  z-index:4;
+}
+
+nav button{
+  flex:1;
+  border:0;
+  background:white;
+  padding:12px 4px;
+  font-size:12px;
+  color:#64748b;
+}
+
+nav button.active{
+  color:#111827;
+  font-weight:700;
+  border-bottom:2px solid #111827;
+}
+
+main{
+  padding:16px;
+  max-width:700px;
+  margin:auto;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+.card{
+  background:white;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:12px;
+}
+
+h2{
+  font-size:17px;
+  margin:0 0 12px;
+}
+
+.muted{
+  color:#64748b;
+  font-size:13px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.stat{
+  padding:12px;
+  background:#f8fafc;
+  border-radius:10px;
+}
+
+.stat b{
+  display:block;
+  font-size:20px;
+  margin-top:3px;
+}
+
+label{
+  font-size:12px;
+  font-weight:650;
+  color:#475569;
+  display:block;
+  margin:12px 0 5px;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:11px;
+  border:1px solid #d1d5db;
+  border-radius:9px;
+  background:white;
+  font:inherit;
+  font-size:14px;
+}
+
+textarea{
+  min-height:78px;
+  resize:vertical;
+}
+
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.chip{
+  border:1px solid #d1d5db;
+  border-radius:20px;
+  padding:8px 10px;
+  background:white;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.chip.sel{
+  background:#111827;
+  color:white;
+  border-color:#111827;
+}
+
+button.primary{
+  width:100%;
+  border:0;
+  background:#111827;
+  color:white;
+  border-radius:10px;
+  padding:13px;
+  font-weight:700;
+  font-size:14px;
+  margin-top:14px;
+}
+
+button.secondary{
+  border:1px solid #d1d5db;
+  background:white;
+  color:#111827;
+  border-radius:9px;
+  padding:10px 12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+}
+
+.danger{
+  color:#b91c1c;
+}
+
+.trade{
+  border-left:4px solid #111827;
+}
+
+.trade h3{
+  margin:0;
+  font-size:15px;
+}
+
+.trade p{
+  margin:5px 0;
+  font-size:12px;
+  color:#64748b;
+}
+
+.pnl{
+  font-weight:800;
+}
+
+.win{
+  color:#15803d;
+}
+
+.loss{
+  color:#b91c1c;
+}
+
+.progress{
+  height:9px;
+  background:#e5e7eb;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.bar{
+  height:100%;
+  background:#111827;
+}
+
+.small{
+  font-size:11px;
+}
+
+.empty{
+  text-align:center;
+  padding:35px 15px;
+  color:#64748b;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+td,th{
+  text-align:left;
+  padding:8px 5px;
+  border-bottom:1px solid #e5e7eb;
+}
+
+
+/* =========================================================
+   CALENDAR HEATMAP
+   ========================================================= */
+
+.calendar-grid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:5px;
+}
+
+.calendar-day{
+  min-height:88px;
+  width:100%;
+  border-radius:8px;
+  padding:6px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
+  cursor:pointer;
+  overflow:hidden;
+
+  font-family:inherit;
+  appearance:none;
+  -webkit-appearance:none;
+}
+
+/* No-trade day */
+.calendar-neutral{
+  background:#f8fafc !important;
+  color:#64748b !important;
+  border:1px solid #e5e7eb !important;
+}
+
+/* =========================================================
+   PROFIT COLORS
+   ========================================================= */
+
+/* Small profit: ₹1 - ₹499 */
+.calendar-profit-small{
+  background:#dcfce7 !important;
+  color:#166534 !important;
+  border:1px solid #bbf7d0 !important;
+}
+
+/* Medium profit: ₹500 - ₹1,999 */
+.calendar-profit-medium{
+  background:#86efac !important;
+  color:#14532d !important;
+  border:1px solid #4ade80 !important;
+}
+
+/* Large profit: ₹2,000 - ₹4,999 */
+.calendar-profit-large{
+  background:#22c55e !important;
+  color:#ffffff !important;
+  border:1px solid #16a34a !important;
+}
+
+/* Very large profit: ₹5,000+ */
+.calendar-profit-xlarge{
+  background:#166534 !important;
+  color:#ffffff !important;
+  border:1px solid #14532d !important;
+}
+
+
+/* =========================================================
+   LOSS COLORS
+   ========================================================= */
+
+/* Small loss: ₹1 - ₹499 */
+.calendar-loss-small{
+  background:#fee2e2 !important;
+  color:#991b1b !important;
+  border:1px solid #fecaca !important;
+}
+
+/* Medium loss: ₹500 - ₹1,999 */
+.calendar-loss-medium{
+  background:#fca5a5 !important;
+  color:#7f1d1d !important;
+  border:1px solid #f87171 !important;
+}
+
+/* Large loss: ₹2,000 - ₹4,999 */
+.calendar-loss-large{
+  background:#ef4444 !important;
+  color:#ffffff !important;
+  border:1px solid #dc2626 !important;
+}
+
+/* Very large loss: ₹5,000+ */
+.calendar-loss-xlarge{
+  background:#991b1b !important;
+  color:#ffffff !important;
+  border:1px solid #7f1d1d !important;
+}
+
+
+/* Zero P&L */
+.calendar-zero{
+  background:#e2e8f0 !important;
+  color:#475569 !important;
+  border:1px solid #cbd5e1 !important;
+}
+
+.calendar-day-number{
+  font-size:11px;
+  font-weight:800;
+  width:100%;
+  text-align:left;
+}
+
+.calendar-pnl{
+  width:100%;
+  text-align:center;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+
+.calendar-trades{
+  width:100%;
+  text-align:center;
+  font-size:9px;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+
+.calendar-rules{
+  width:100%;
+  text-align:center;
+  font-size:8px;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+
+
+/* Mobile */
+@media(max-width:500px){
+  .calendar-grid{
+    gap:3px;
+  }
+
+  .calendar-day{
+    min-height:78px;
+    padding:5px 3px;
+  }
+
+  .calendar-pnl{
+    font-size:9px;
+  }
+
+  .calendar-trades{
+    font-size:8px;
+  }
+
+  .calendar-rules{
+    font-size:7px;
+  }
+}
+
+
+/* =========================================================
+   V2 TRADE JOURNAL ENHANCEMENTS
+   ========================================================= */
+.hidden{display:none !important;}
+.other-box{margin-top:8px;}
+.preview-image{width:100%;max-height:320px;object-fit:contain;border-radius:10px;border:1px solid #e5e7eb;background:#f8fafc;}
+ .screenshot-wrap{margin-top:10px;}
+.screenshot-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.screenshot-delete{font-size:11px;padding:7px 10px;}
+.delete-all-screenshots{margin-left:auto;}
+@media(max-width:500px){.delete-all-screenshots{margin-left:0;width:100%;}}
+.trade-thumb{width:100%;max-height:240px;object-fit:contain;border-radius:10px;border:1px solid #e5e7eb;background:#f8fafc;display:block;}
+.analytics-canvas{width:100%;height:280px;display:block;border:1px solid #e5e7eb;border-radius:12px;background:#fff;}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#64748b;margin-top:8px;}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:4px;}
+.day-trade-card{padding:12px;border:1px solid #e5e7eb;border-radius:10px;margin-top:10px;background:#fff;}
+.day-modal{position:fixed;inset:0;background:rgba(60,48,90,.42);backdrop-filter:blur(2px);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;animation:overlayIn var(--fast) var(--ease);}
+.day-modal-card{background:#fff;border-radius:18px;max-width:680px;width:100%;max-height:90vh;overflow:auto;padding:18px;box-shadow:0 20px 50px rgba(90,70,130,.25);animation:modalIn var(--med) var(--ease);}
+.type-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.type-switch button{border:1px solid #e3deeb;background:#fff;color:#76679c;border-radius:10px;padding:11px;font-weight:700;cursor:pointer;}
+.type-switch button.sel{background:#7c69b5;color:#fff;border-color:#7c69b5;box-shadow:0 3px 8px rgba(105,85,150,.3);}
+@media(max-width:500px){.analytics-canvas{height:240px;}.day-modal{padding:8px;}}
+/* =========================================================
+   VERY LIGHT LAVENDER UI
+   ========================================================= */
+
+:root{
+  --purple:#a78bfa;
+  --purple-dark:#8b78c9;
+  --purple-light:#f3efff;
+  --purple-soft:#faf8ff;
+  --purple-border:#ebe5f7;
+
+  --text:#2f3340;
+  --text-soft:#747988;
+
+  --green:#16a34a;
+  --green-light:#dcfce7;
+
+  --red:#dc2626;
+  --red-light:#fee2e2;
+
+  --white:#ffffff;
+  --border:#eeeaf5;
+
+  --ease:cubic-bezier(.4,0,.2,1);
+  --fast:.15s;
+  --med:.25s;
+  --icon:#8b78c9;
+}
+
+/* =========================================================
+   MOTION
+   ========================================================= */
+
+@keyframes pageIn{
+  from{opacity:0;transform:translateY(6px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+@keyframes modalIn{
+  from{opacity:0;transform:translateY(10px) scale(.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+@keyframes overlayIn{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+
+@keyframes pop{
+  0%{transform:scale(1);}
+  40%{transform:scale(.94);}
+  100%{transform:scale(1);}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important;}
+}
+
+.page.active{
+  animation:pageIn var(--med) var(--ease);
+}
+
+/* =========================================================
+   ICONS
+   ========================================================= */
+
+.icon{
+  width:18px;
+  height:18px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  flex-shrink:0;
+  vertical-align:middle;
+}
+
+.nav-icon{
+  width:19px;
+  height:19px;
+  margin-bottom:3px;
+}
+
+h2 .icon{
+  width:17px;
+  height:17px;
+  color:var(--icon);
+  margin-right:6px;
+}
+
+.stat-icon{
+  width:15px;
+  height:15px;
+  color:#a99bd1;
+  margin-right:4px;
+}
+
+.btn-icon{
+  width:16px;
+  height:16px;
+  margin-right:5px;
+  vertical-align:-3px;
+}
+
+
+/* BODY */
+
+body{
+  background:#faf9fd;
+  color:var(--text);
+}
+
+
+/* HEADER */
+
+header{
+  background:#f3efff;
+  color:#40365f;
+
+  padding:20px 18px 16px;
+
+  box-shadow:0 2px 10px rgba(120,100,170,.06);
+
+  border-bottom:1px solid #ebe5f7;
+
+  border-bottom-left-radius:16px;
+  border-bottom-right-radius:16px;
+}
+
+header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.header-mark{
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  background:linear-gradient(150deg,#c9b8ec,#a695d0);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  box-shadow:0 3px 8px rgba(130,110,170,.25);
+}
+
+.header-mark .icon{
+  width:20px;
+  height:20px;
+  color:#fff;
+  stroke-width:2;
+}
+
+header h1{
+  color:#4b4267;
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:-.01em;
+  line-height:1.2;
+}
+
+header p{
+  color:#8a7fa0;
+  font-size:12.5px;
+  font-weight:500;
+  letter-spacing:.01em;
+}
+
+
+/* NAVIGATION */
+
+nav{
+  background:#ffffff;
+  border-bottom:1px solid #eeeaf5;
+
+  box-shadow:0 2px 8px rgba(100,80,150,.04);
+}
+
+nav button{
+  background:white;
+  color:#a5a0b3;
+
+  font-weight:650;
+  font-family:inherit;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+
+  position:relative;
+
+  transition:color var(--fast) var(--ease),background var(--fast) var(--ease);
+}
+
+nav button .nav-icon{
+  color:#b6b0c4;
+  transition:color var(--fast) var(--ease),transform var(--fast) var(--ease);
+}
+
+nav button::after{
+  content:'';
+  position:absolute;
+  left:22%;
+  right:22%;
+  bottom:0;
+  height:2px;
+  border-radius:2px 2px 0 0;
+  background:#b5a3df;
+  transform:scaleX(0);
+  transition:transform var(--med) var(--ease);
+}
+
+nav button:hover{
+  background:#faf8ff;
+  color:#8b78c9;
+}
+
+nav button:hover .nav-icon{
+  color:#8b78c9;
+}
+
+nav button:active .nav-icon{
+  transform:scale(.88);
+}
+
+nav button.active{
+  color:#7c69b5;
+
+  font-weight:750;
+
+  background:#fcfaff;
+}
+
+nav button.active .nav-icon{
+  color:#7c69b5;
+}
+
+nav button.active::after{
+  transform:scaleX(1);
+}
+
+
+/* MAIN */
+
+main{
+  padding:17px 16px 30px;
+}
+
+
+/* CARDS */
+
+.card{
+  background:#ffffff;
+
+  border:1px solid #eeeaf5;
+
+  border-radius:16px;
+
+  padding:16px;
+
+  margin-bottom:13px;
+
+  box-shadow:
+    0 3px 12px rgba(100,80,150,.045);
+
+  transition:box-shadow var(--med) var(--ease);
+}
+
+.card:hover{
+  box-shadow:
+    0 5px 16px rgba(100,80,150,.065);
+}
+
+.card h2{
+  color:#4b4267;
+
+  font-size:16.5px;
+  font-weight:750;
+  letter-spacing:-.005em;
+  display:flex;
+  align-items:center;
+}
+
+
+/* TEXT */
+
+.muted{
+  color:#858392;
+}
+
+.small{
+  color:#92909d;
+}
+
+
+/* STAT BOXES */
+
+.stat{
+  padding:13px;
+
+  background:#faf8ff;
+
+  border:1px solid #f0ebfa;
+
+  border-radius:12px;
+
+  transition:transform var(--fast) var(--ease),box-shadow var(--fast) var(--ease);
+}
+
+.stat:hover{
+  transform:translateY(-1px);
+
+  box-shadow:
+    0 3px 10px rgba(100,80,150,.06);
+}
+
+.stat .muted{
+  color:#918aa1;
+
+  font-size:11px;
+  font-weight:600;
+
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+
+.stat b{
+  color:#51476c;
+
+  font-size:19px;
+  font-weight:800;
+  letter-spacing:-.01em;
+  font-variant-numeric:tabular-nums;
+}
+
+.stat b.win{
+  color:#16a34a;
+}
+
+.stat b.loss{
+  color:#dc2626;
+}
+
+.stat-win-light{
+  background:#dcfce7;
+  border-color:#bbf7d0;
+}
+
+.stat-win-light .muted{
+  color:#4d9c6f;
+}
+
+.stat-win-light b{
+  color:#15803d;
+}
+
+.stat-loss-light{
+  background:#fee2e2;
+  border-color:#fecaca;
+}
+
+.stat-loss-light .muted{
+  color:#c17a7a;
+}
+
+.stat-loss-light b{
+  color:#b91c1c;
+}
+
+
+/* INPUTS */
+
+input,
+select,
+textarea{
+  background:#ffffff;
+
+  border:1px solid #e5e0ee;
+
+  border-radius:10px;
+
+  color:#383746;
+}
+
+input:hover,
+select:hover,
+textarea:hover{
+  border-color:#cfc5e4;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none;
+
+  border-color:#b8a7dc;
+
+  box-shadow:
+    0 0 0 3px rgba(183,167,220,.13);
+
+  background:#fefcff;
+}
+
+label{
+  color:#625a73;
+  font-weight:650;
+}
+
+
+/* CHIPS */
+
+.chip{
+  background:#ffffff;
+
+  border:1px solid #e3deeb;
+
+  color:#706b7b;
+
+  border-radius:20px;
+
+  padding:8px 11px;
+
+  font-weight:600;
+  font-family:inherit;
+
+  transition:background var(--fast) var(--ease),border-color var(--fast) var(--ease),color var(--fast) var(--ease),transform var(--fast) var(--ease);
+}
+
+.chip:hover{
+  background:#faf8ff;
+
+  border-color:#cfc3e6;
+
+  color:#7564a3;
+}
+
+.chip:active{
+  transform:scale(.95);
+}
+
+.chip.sel{
+  background:#7c69b5;
+
+  color:#ffffff;
+
+  border-color:#7c69b5;
+
+  font-weight:750;
+
+  box-shadow:0 3px 8px rgba(105,85,150,.3);
+
+  animation:pop .22s var(--ease);
+}
+
+.chip.sel::before{
+  content:'✓';
+  margin-right:5px;
+  font-weight:800;
+}
+
+
+/* PRIMARY BUTTON */
+
+button.primary{
+  background:#a695d0;
+
+  color:white;
+
+  border:0;
+
+  border-radius:11px;
+
+  padding:13px;
+
+  font-weight:750;
+  font-family:inherit;
+  letter-spacing:.01em;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  box-shadow:
+    0 3px 8px rgba(130,110,170,.15);
+
+  transition:background var(--fast) var(--ease),transform var(--fast) var(--ease),box-shadow var(--fast) var(--ease);
+}
+
+button.primary:hover{
+  background:#9886c5;
+
+  transform:translateY(-1px);
+
+  box-shadow:
+    0 5px 12px rgba(130,110,170,.18);
+}
+
+button.primary:active{
+  transform:translateY(0) scale(.98);
+}
+
+
+/* SECONDARY BUTTON */
+
+button.secondary{
+  background:#ffffff;
+
+  color:#76679c;
+
+  border:1px solid #e3deeb;
+
+  border-radius:10px;
+
+  font-weight:650;
+  font-family:inherit;
+
+  transition:background var(--fast) var(--ease),border-color var(--fast) var(--ease),transform var(--fast) var(--ease);
+}
+
+button.secondary:hover{
+  background:#faf8ff;
+
+  border-color:#cfc3e6;
+}
+
+button.secondary:active{
+  transform:scale(.96);
+}
+
+.type-switch button{
+  transition:background var(--fast) var(--ease),color var(--fast) var(--ease),border-color var(--fast) var(--ease),transform var(--fast) var(--ease);
+}
+
+.type-switch button:active{
+  transform:scale(.97);
+}
+
+:focus-visible{
+  outline:2px solid #b09fd5;
+  outline-offset:2px;
+}
+
+
+/* TRADE CARDS */
+
+.trade{
+  border-left:3px solid #b7a6dc;
+
+  background:#ffffff;
+
+  border-top:1px solid #eeeaf5;
+  border-right:1px solid #eeeaf5;
+  border-bottom:1px solid #eeeaf5;
+
+  border-radius:13px;
+
+  box-shadow:
+    0 3px 10px rgba(100,80,150,.04);
+}
+
+.trade h3{
+  color:#51476c;
+  font-weight:750;
+}
+
+.trade p{
+  color:#777582;
+}
+
+
+/* P&L */
+
+.pnl{
+  font-weight:800;
+}
+
+.win{
+  color:#16a34a;
+}
+
+.loss{
+  color:#dc2626;
+}
+
+
+/* PROGRESS BAR */
+
+.progress{
+  height:9px;
+
+  background:#f0ebfa;
+
+  border-radius:20px;
+}
+
+.bar{
+  background:linear-gradient(90deg,#c9b8ec,#a695d0);
+
+  border-radius:20px;
+
+  box-shadow:none;
+
+  transition:width .5s var(--ease);
+}
+
+
+/* TABLE */
+
+table{
+  background:white;
+}
+
+th{
+  background:#faf8ff;
+  color:#66558f;
+  font-weight:750;
+}
+
+td{
+  color:#666572;
+}
+
+td,
+th{
+  border-bottom:1px solid #eeeaf5;
+}
+
+tr:hover td{
+  background:#fdfbff;
+}
+
+
+/* PERFORMANCE FEEDBACK */
+
+#feedbackCard{
+  border-left:3px solid #d8cdec;
+}
+
+#feedbackCard h2 .icon{
+  color:#8b78c9;
+}
+
+#feedbackText{
+  font-size:13.5px;
+  line-height:1.6;
+  color:#5c5670;
+}
+
+#feedbackText b{
+  font-weight:750;
+}
+
+.feedback-good{
+  color:#15803d;
+}
+
+#feedbackCard.tone-good{
+  border-left-color:#4ade80;
+}
+
+.feedback-warn{
+  color:#b45309;
+}
+
+#feedbackCard.tone-warn{
+  border-left-color:#fbbf24;
+}
+
+.feedback-bad{
+  color:#b91c1c;
+}
+
+#feedbackCard.tone-bad{
+  border-left-color:#f87171;
+}
+
+
+/* CALENDAR */
+
+.calendar-day{
+  border:1px solid rgba(170,150,205,.12);
+
+  box-shadow:
+    0 2px 5px rgba(100,80,150,.035);
+
+  transition:transform var(--fast) var(--ease),box-shadow var(--fast) var(--ease);
+}
+
+.calendar-day:hover{
+  transform:translateY(-1px);
+
+  box-shadow:
+    0 4px 9px rgba(100,80,150,.07);
+}
+
+.calendar-day-number{
+  color:#6d5c91;
+}
+
+
+/* EMPTY STATE */
+
+.empty{
+  background:#fcfaff;
+
+  border:1px dashed #e2d9f0;
+
+  border-radius:13px;
+
+  color:#8a8495;
+
+  font-size:13px;
+  line-height:1.6;
+}
+
+.empty::before{
+  content:'';
+  display:block;
+  width:34px;
+  height:34px;
+  margin:0 auto 10px;
+  background:#f0ebfa;
+  border-radius:50%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b78c9' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3v6h6'/%3E%3Cpath d='M3.5 13a8.5 8.5 0 108-11'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:17px 17px;
+}
+
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar{
+  width:7px;
+}
+
+::-webkit-scrollbar-track{
+  background:#faf9fd;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#ddd4eb;
+
+  border-radius:10px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background:#c9bddd;
+}
+
+
+/* TEXT SELECTION */
+
+::selection{
+  background:#e8e0f5;
+  color:#5d4d82;
+}
+
+
+/* MOBILE */
+
+@media(max-width:500px){
+
+  header{
+    padding:18px 15px 15px;
+  }
+
+  header h1{
+    font-size:20px;
+  }
+
+  nav button{
+    font-size:11px;
+    padding:12px 2px;
+  }
+
+  main{
+    padding:14px 12px 25px;
+  }
+
+  .card{
+    padding:14px;
+    border-radius:15px;
+  }
+
+  .stat{
+    padding:11px;
+  }
+
+  .stat b{
+    font-size:18px;
+  }
+
+  .chip{
+    padding:7px 10px;
+    font-size:11px;
+  }
+
+}
+
+/* =========================================================
+   PSYCHOLOGY SEMANTIC FEEDBACK
+   ========================================================= */
+.emotion-flag{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:750;
+  white-space:nowrap;
+}
+.emotion-flag.green{
+  color:#15803d;
+  background:#ecfdf3;
+  border:1px solid #bbf7d0;
+}
+.emotion-flag.red{
+  color:#b91c1c;
+  background:#fff1f2;
+  border:1px solid #fecdd3;
+}
+.emotion-flag.neutral{
+  color:#766b8d;
+  background:#faf8ff;
+  border:1px solid #ebe5f7;
+}
+.confidence-low{color:#b91c1c !important;}
+.confidence-high{color:#15803d !important;}
+.confidence-neutral{color:#766b8d !important;}
+#confidence{accent-color:#a78bfa;}
+#confidence.confidence-low{accent-color:#dc2626;}
+#confidence.confidence-high{accent-color:#16a34a;}
+#confidence.confidence-neutral{accent-color:#a78bfa;}
+
+.chip.semantic-green.sel{
+  background:#ecfdf3 !important;
+  color:#15803d !important;
+  border-color:#bbf7d0 !important;
+  box-shadow:0 2px 6px rgba(22,163,74,.10) !important;
+}
+.chip.semantic-red.sel{
+  background:#fff1f2 !important;
+  color:#b91c1c !important;
+  border-color:#fecdd3 !important;
+  box-shadow:0 2px 6px rgba(220,38,38,.10) !important;
+}
+
+
+/* =========================================================
+   ENHANCED ANALYTICS
+   ========================================================= */
+.analytics-chart-wrap{
+  position:relative;
+  margin-top:14px;
+}
+.analytics-chart{
+  width:100%;
+  height:300px;
+  display:block;
+  background:#fcfbff;
+  border:1px solid #eeeaf5;
+  border-radius:14px;
+  cursor:crosshair;
+}
+.analytics-tooltip{
+  position:absolute;
+  z-index:20;
+  pointer-events:none;
+  min-width:190px;
+  max-width:240px;
+  padding:11px 13px;
+  border:1px solid #e7e0f4;
+  border-radius:11px;
+  background:rgba(255,255,255,.97);
+  box-shadow:0 8px 24px rgba(74,58,104,.12);
+  font-size:12px;
+  line-height:1.55;
+  color:#3d4050;
+  display:none;
+}
+.analytics-tooltip strong{
+  display:block;
+  margin-bottom:4px;
+  color:#2f3340;
+  font-size:13px;
+}
+.analytics-tooltip .stat-row{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+}
+.analytics-tooltip .positive{color:#15803d;font-weight:700}
+.analytics-tooltip .negative{color:#b91c1c;font-weight:700}
+.analytics-summary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+.analytics-mini{
+  padding:10px 12px;
+  border:1px solid #eeeaf5;
+  border-radius:11px;
+  background:#faf8ff;
+}
+.analytics-mini span{
+  display:block;
+  font-size:11px;
+  color:#747988;
+  margin-bottom:3px;
+}
+.analytics-mini strong{
+  font-size:15px;
+  color:#343746;
+}
+.analytics-help{
+  margin-top:8px;
+  color:#858998;
+  font-size:11px;
+}
+@media(max-width:700px){
+  .analytics-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .analytics-chart{height:250px}
+}
+
+</style>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#f4f0ff">
+</head>
+
+<body>
+
+<header>
+  <div class="header-mark">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+  </div>
+  <div>
+    <h1>My Trading Journal</h1>
+    <p>Psychology • Discipline • Progress</p>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showPage('home',this)">
+    <svg class="icon nav-icon" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/></svg>
+    Home
+  </button>
+  <button onclick="showPage('add',this)">
+    <svg class="icon nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+    Trade
+  </button>
+  <button onclick="showPage('history',this)">
+    <svg class="icon nav-icon" viewBox="0 0 24 24"><path d="M3 3v6h6"/><path d="M3.5 13a8.5 8.5 0 108-11"/><path d="M12 7v5l3 2"/></svg>
+    History
+  </button>
+  <button onclick="showPage('calendar',this)">
+    <svg class="icon nav-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    Calendar
+  </button>
+  <button onclick="showPage('analytics',this)">
+    <svg class="icon nav-icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+    Analytics
+  </button>
+  <button onclick="showPage('psych',this)">
+    <svg class="icon nav-icon" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a6 6 0 00-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0012 2z"/></svg>
+    Psychology
+  </button>
+</nav>
+
+
+<main>
+
+<!-- =====================================================
+     HOME
+     ===================================================== -->
+
+<section id="home" class="page active">
+
+  <div class="card">
+
+    <h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Today's status</h2>
+
+    <div class="grid">
+
+      <div class="stat">
+        <span class="muted">Trades</span>
+        <b id="todayTrades">0 / 2</b>
+      </div>
+
+      <div class="stat">
+        <span class="muted">Rule adherence</span>
+        <b id="todayRules">—</b>
+      </div>
+
+      <div class="stat">
+        <span class="muted">Today's P&amp;L</span>
+        <b id="todayPnl">₹0</b>
+      </div>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="showPage('add',[...document.querySelectorAll('nav button')].find(b=>b.textContent.includes('Trade')))"
+    >
+      <svg class="icon btn-icon" viewBox="0 0 24 24" style="color:inherit"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>RECORD TRADE
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2><svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Journal snapshot</h2>
+
+    <div class="grid">
+
+      <div class="stat">
+        <span class="muted">Total trades</span>
+        <b id="totalTrades">0</b>
+      </div>
+
+      <div class="stat">
+        <span class="muted">Win rate</span>
+        <b id="winRate">—</b>
+      </div>
+
+      <div class="stat">
+        <span class="muted">Rules followed</span>
+        <b id="rulesRate">—</b>
+      </div>
+
+      <div class="stat">
+        <span class="muted">FOMO trades</span>
+        <b id="fomoCount">0</b>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+    <h2><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v6h6"/><path d="M3.5 13a8.5 8.5 0 108-11"/><path d="M12 7v5l3 2"/></svg>Latest 2 trades</h2>
+    <div id="latestTrades"></div>
+  </div>
+
+  <div class="card">
+
+    <h2><svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a6 6 0 00-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0012 2z"/></svg>100-trade psychology goal</h2>
+
+    <p class="muted" id="goalText">
+      Record your first trade. The app will build your emotional pattern as you go.
+    </p>
+
+    <div class="progress">
+      <div class="bar" id="goalBar" style="width:0%"></div>
+    </div>
+
+    <p class="small" id="goalCount">0 / 100 trades</p>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     ADD TRADE
+     ===================================================== -->
+
+<section id="add" class="page">
+
+<div class="card">
+
+<h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span id="formTitle">Record trade</span></h2>
+
+<p class="muted">
+Record what you actually saw, felt and executed.
+</p>
+
+<label>Instrument</label>
+<div class="type-switch">
+  <button id="typeOptions" class="sel" onclick="setInstrument('Options')">Options</button>
+  <button id="typeEquity" onclick="setInstrument('Equity')">Equity</button>
+</div>
+
+<div id="optionsFields">
+  <label>Index</label>
+  <div class="chips" data-group="index">
+    <button class="chip" onclick="pick(this,'index')">NIFTY</button>
+    <button class="chip" onclick="pick(this,'index')">BANK NIFTY</button>
+    <button class="chip" onclick="pick(this,'index')">SENSEX</button>
+  </div>
+
+  <label>Option</label>
+  <div class="chips" data-group="option">
+    <button class="chip" onclick="pick(this,'option')">CE</button>
+    <button class="chip" onclick="pick(this,'option')">PE</button>
+  </div>
+
+  <div class="grid">
+    <div><label>Strike</label><input id="strike" type="number" placeholder="e.g. 25000"></div>
+    <div><label>Expiry</label><input id="expiry" type="date"></div>
+  </div>
+</div>
+
+<div id="equityFields" class="hidden">
+  <label>Stock</label>
+  <input id="stock" type="text" placeholder="e.g. RELIANCE">
+
+  <label>Side</label>
+  <div class="chips" data-group="side">
+    <button class="chip" onclick="pick(this,'side')">BUY</button>
+    <button class="chip" onclick="pick(this,'side')">SELL</button>
+  </div>
+</div>
+
+<label>Trade date</label>
+<input id="tradeDate" type="date">
+
+
+<div class="grid">
+
+<div>
+
+<label>Entry time</label>
+
+<input
+id="entryTime"
+type="time"
+>
+
+</div>
+
+
+<div>
+
+<label>Entry price</label>
+
+<input
+id="entryPrice"
+type="number"
+step="0.05"
+>
+
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div>
+
+<label>Exit time</label>
+
+<input
+id="exitTime"
+type="time"
+>
+
+</div>
+
+
+<div>
+
+<label>Exit price</label>
+
+<input
+id="exitPrice"
+type="number"
+step="0.05"
+>
+
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div>
+
+<label>Quantity</label>
+
+<input
+id="qty"
+type="number"
+placeholder="1 lot / total qty"
+>
+
+</div>
+
+
+<div>
+
+<label>Capital (₹)</label>
+
+<input
+id="capital"
+type="number"
+placeholder="for 1% risk check"
+>
+
+</div>
+
+</div>
+
+
+<label>Entry candle / pattern</label>
+<textarea id="candle" placeholder="Write exactly what you saw. Example: Bullish engulfing after liquidity sweep at support."></textarea>
+
+<label>Trade screenshot / chart screenshot</label>
+<input id="screenshot" type="file" accept="image/*" onchange="previewScreenshot(event)">
+<div id="screenshotPreview" class="screenshot-wrap"></div>
+
+<label>Why did you enter?</label>
+
+<textarea
+id="why"
+placeholder="What did you see and why did it qualify?"
+></textarea>
+
+
+<label>How did you feel before entering?</label>
+
+<div class="chips" data-group="emotion">
+
+<button class="chip" onclick="toggle(this)">Calm</button>
+<button class="chip" onclick="toggle(this)">Confident</button>
+<button class="chip" onclick="toggle(this)">Nervous</button>
+<button class="chip" onclick="toggle(this)">Fearful</button>
+<button class="chip" onclick="toggle(this)">FOMO</button>
+<button class="chip" onclick="toggle(this)">Doubtful</button>
+<button class="chip" onclick="toggle(this)">Impatient</button>
+<button class="chip" onclick="toggle(this)">Revenge</button>
+<button class="chip" onclick="toggleOther(this,'beforeOther')">Other</button>
+
+</div>
+<textarea id="beforeOther" class="other-box hidden" placeholder="Write whatever you want to describe before the trade..."></textarea>
+
+
+<label>
+Confidence before entry:
+<span id="confidenceValue">5</span>/10
+</label>
+
+<input
+id="confidence"
+type="range"
+min="1"
+max="10"
+value="5"
+oninput="confidenceValue.textContent=this.value; updateConfidenceColor()"
+>
+
+
+<label>Did you follow your rules?</label>
+
+<div class="chips" data-group="rules">
+
+<button class="chip" onclick="pick(this,'rules')">
+Yes
+</button>
+
+<button class="chip" onclick="pick(this,'rules')">
+No
+</button>
+
+</div>
+
+
+<label>Did you feel this was an A+ setup?</label>
+
+<div class="chips" data-group="aPlus">
+
+<button class="chip" onclick="pick(this,'aPlus')">
+Yes
+</button>
+
+<button class="chip" onclick="pick(this,'aPlus')">
+No
+</button>
+
+</div>
+
+
+<label>
+What were you thinking/feeling when you entered?
+</label>
+
+<textarea
+id="thoughts"
+placeholder="Be honest. This is for your psychological progress."
+></textarea>
+
+
+<label>After the trade — how did you feel?</label>
+
+<div class="chips" data-group="afterEmotion">
+
+<button class="chip" onclick="toggle(this)">Calm</button>
+<button class="chip" onclick="toggle(this)">Happy</button>
+<button class="chip" onclick="toggle(this)">Disappointed</button>
+<button class="chip" onclick="toggle(this)">Angry</button>
+<button class="chip" onclick="toggle(this)">Fearful</button>
+<button class="chip" onclick="toggle(this)">Overconfident</button>
+<button class="chip" onclick="toggle(this)">Frustrated</button>
+<button class="chip" onclick="toggle(this)">Neutral</button>
+<button class="chip" onclick="toggleOther(this,'afterOther')">Other</button>
+
+</div>
+<textarea id="afterOther" class="other-box hidden" placeholder="Write whatever you want to describe after the trade..."></textarea>
+
+
+<label>Did you interfere with the trade?</label>
+
+<div class="chips" data-group="interference">
+
+<button class="chip" onclick="toggle(this)">
+Moved SL
+</button>
+
+<button class="chip" onclick="toggle(this)">
+Exited early
+</button>
+
+<button class="chip" onclick="toggle(this)">
+Held beyond target
+</button>
+
+<button class="chip" onclick="toggle(this)">
+Increased position
+</button>
+
+<button class="chip" onclick="toggle(this)">
+None
+</button>
+
+</div>
+
+
+<label>What did you learn?</label>
+
+<textarea
+id="lesson"
+placeholder="One honest takeaway."
+></textarea>
+
+
+<button class="primary" onclick="saveTrade()">
+SAVE TRADE
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     HISTORY
+     ===================================================== -->
+
+<section id="history" class="page">
+
+<div class="card">
+
+<div class="row" style="align-items:center;gap:10px;flex-wrap:wrap">
+<h2 style="margin:0"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v6h6"/><path d="M3.5 13a8.5 8.5 0 108-11"/><path d="M12 7v5l3 2"/></svg>Trade history</h2>
+<button class="secondary danger delete-all-screenshots" onclick="deleteAllScreenshots()">🗑 Delete all screenshots</button>
+</div>
+<p class="muted">Delete screenshots without deleting your trade records.</p>
+
+<div id="historyList"></div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     CALENDAR
+     ===================================================== -->
+
+<section id="calendar" class="page">
+
+<div class="card">
+
+<div class="row">
+
+<button
+class="secondary"
+onclick="changeMonth(-1)"
+>
+‹
+</button>
+
+<h2
+id="calendarTitle"
+style="margin:0"
+>
+Month
+</h2>
+
+<button
+class="secondary"
+onclick="changeMonth(1)"
+>
+›
+</button>
+
+</div>
+
+
+<p class="muted">
+Each box shows that day's net trading result.
+Light green = small profit.
+Darker green = bigger profit.
+Light red = small loss.
+Darker red = bigger loss.
+</p>
+
+
+<div
+id="calendarGrid"
+class="calendar-grid"
+></div>
+
+
+<div
+style="
+display:flex;
+gap:10px;
+align-items:center;
+justify-content:center;
+margin-top:12px;
+font-size:11px;
+flex-wrap:wrap;
+"
+>
+
+<span>
+<i
+style="
+display:inline-block;
+width:12px;
+height:12px;
+border-radius:3px;
+background:#dcfce7;
+vertical-align:middle;
+"
+></i>
+Small profit
+</span>
+
+
+<span>
+<i
+style="
+display:inline-block;
+width:12px;
+height:12px;
+border-radius:3px;
+background:#166534;
+vertical-align:middle;
+"
+></i>
+Big profit
+</span>
+
+
+<span>
+<i
+style="
+display:inline-block;
+width:12px;
+height:12px;
+border-radius:3px;
+background:#fee2e2;
+vertical-align:middle;
+"
+></i>
+Small loss
+</span>
+
+
+<span>
+<i
+style="
+display:inline-block;
+width:12px;
+height:12px;
+border-radius:3px;
+background:#991b1b;
+vertical-align:middle;
+"
+></i>
+Big loss
+</span>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="grid">
+
+<div class="stat">
+<span class="muted">Green days</span>
+<b id="greenDays">0</b>
+</div>
+
+<div class="stat">
+<span class="muted">Red days</span>
+<b id="redDays">0</b>
+</div>
+
+<div class="stat">
+<span class="muted">Month P&L</span>
+<b id="monthPnl">₹0</b>
+</div>
+
+<div class="stat">
+<span class="muted">No-trade days</span>
+<b id="noTradeDays">0</b>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     ANALYTICS
+     ===================================================== -->
+<section id="analytics" class="page">
+  <div class="card">
+    <h2><svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Performance analytics</h2>
+    <p class="muted">Progress is shown in green; deterioration is shown in red.</p>
+    <label>Rule adherence</label>
+    <canvas id="rulesChart" class="analytics-canvas"></canvas>
+    <div class="chart-legend"><span><i class="legend-dot" style="background:#16a34a"></i>Improving / stable</span><span><i class="legend-dot" style="background:#dc2626"></i>Deteriorating</span></div>
+  </div>
+  <div class="card">
+    <label>Cumulative P&amp;L</label>
+    <canvas id="pnlChart" class="analytics-canvas"></canvas>
+    <div class="chart-legend"><span><i class="legend-dot" style="background:#16a34a"></i>Profit / recovery</span><span><i class="legend-dot" style="background:#dc2626"></i>Loss / drawdown</span></div>
+  </div>
+  <div class="card" id="feedbackCard">
+    <h2><svg class="icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Performance feedback</h2>
+    <p class="muted" id="feedbackText">Record a few trades to see personalized feedback on your discipline and consistency.</p>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div class="stat"><span class="muted">Total P&amp;L</span><b id="analyticsPnl">₹0</b></div>
+      <div class="stat"><span class="muted">Win rate</span><b id="analyticsWinRate">—</b></div>
+      <div class="stat stat-win-light"><span class="muted">Average win</span><b id="analyticsAvgWin">₹0</b></div>
+      <div class="stat stat-loss-light"><span class="muted">Average loss</span><b id="analyticsAvgLoss">₹0</b></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =====================================================
+     PSYCHOLOGY
+     ===================================================== -->
+
+<section id="psych" class="page">
+
+<div class="card">
+
+<h2><svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a6 6 0 00-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0012 2z"/></svg>Psychological progress</h2>
+
+<p class="muted">
+This page becomes more useful as you approach 100 trades.
+</p>
+
+<div class="grid">
+
+<div class="stat">
+<span class="muted">Rule adherence</span>
+<b id="psychRules">—</b>
+</div>
+
+<div class="stat">
+<span class="muted">A+ setups</span>
+<b id="psychA">—</b>
+</div>
+
+<div class="stat">
+<span class="muted">FOMO</span>
+<b id="psychFomo">0</b>
+</div>
+
+<div class="stat">
+<span class="muted">Interference</span>
+<b id="psychInterf">0</b>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M8.5 15a4 4 0 007 0"/></svg>Emotion → performance</h2>
+
+<div id="emotionTable"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2><svg class="icon" viewBox="0 0 24 24"><path d="M8 3v18M16 3v18M3 8h5M16 8h5M3 16h5M16 16h5"/></svg>Last 25 vs previous 25</h2>
+
+<div id="comparison"></div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<script>
+
+/* =========================================================
+   DATA
+   ========================================================= */
+
+let trades = JSON.parse(
+  localStorage.getItem('myTradingJournal') || '[]'
+);
+
+// Migrate legacy trades without changing their stored date/data.
+// Legacy options trades were BUY trades, so only legacy records are recalculated.
+trades = trades.map(t => {
+  if(!t.instrumentType){
+    return {...t, instrumentType:'Options', side:'BUY', tradeDate:(()=>{const d=new Date(t.date);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(), pnl:(Number(t.exitPrice)-Number(t.entryPrice))*Number(t.qty)};
+  }
+  return t;
+});
+localStorage.setItem('myTradingJournal',JSON.stringify(trades));
+
+let selected = {
+  index:'', option:'', candle:'', rules:'', aPlus:'', side:''
+};
+let instrumentType = 'Options';
+let screenshotData = '';
+let screenshotExisting = '';
+
+let editingId = null;
+
+let calendarDate = new Date();
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+function showPage(id,btn){
+
+  document
+    .querySelectorAll('.page')
+    .forEach(x=>x.classList.remove('active'));
+
+  document
+    .getElementById(id)
+    .classList.add('active');
+
+  document
+    .querySelectorAll('nav button')
+    .forEach(x=>x.classList.remove('active'));
+
+  if(btn){
+    btn.classList.add('active');
+  }
+
+  if(id==='history'){
+    renderHistory();
+  }
+
+  if(id==='calendar'){
+    renderCalendar();
+  }
+
+  if(id==='analytics'){
+    renderAnalytics();
+  }
+
+  if(id==='psych'){
+    renderPsych();
+  }
+
+  updateHome();
+
+  window.scrollTo(0,0);
+}
+
+
+function setInstrument(type){
+  instrumentType=type;
+  document.getElementById('typeOptions').classList.toggle('sel',type==='Options');
+  document.getElementById('typeEquity').classList.toggle('sel',type==='Equity');
+  document.getElementById('optionsFields').classList.toggle('hidden',type!=='Options');
+  document.getElementById('equityFields').classList.toggle('hidden',type!=='Equity');
+}
+
+function toggleOther(el,id){
+  el.classList.toggle('sel');
+  const box=document.getElementById(id);
+  box.classList.toggle('hidden',!el.classList.contains('sel'));
+  if(!el.classList.contains('sel')) box.value='';
+}
+
+function previewScreenshot(event){
+  const file=event.target.files && event.target.files[0];
+  if(!file){ screenshotData=''; document.getElementById('screenshotPreview').innerHTML=''; return; }
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const max=1400;
+      const scale=Math.min(1,max/Math.max(img.width,img.height));
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.round(img.width*scale);
+      canvas.height=Math.round(img.height*scale);
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      screenshotData=canvas.toDataURL('image/jpeg',0.72);
+      document.getElementById('screenshotPreview').innerHTML='<img class="preview-image" src="'+screenshotData+'">';
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function money(v){ return (Number(v)>=0?'+':'')+'₹'+Math.round(Number(v)||0).toLocaleString('en-IN'); }
+function tradeTitle(t){
+  if(t.instrumentType==='Equity') return `${esc(t.stock||'Equity')} ${esc(t.side||'')}`;
+  return `${esc(t.index||'')} ${t.strike||''} ${esc(t.option||'')}`;
+}
+
+/* =========================================================
+   FORM HELPERS
+   ========================================================= */
+
+function pick(el,group){
+
+  el.parentElement
+    .querySelectorAll('.chip')
+    .forEach(x=>{
+      x.classList.remove('sel','semantic-green','semantic-red');
+    });
+
+  el.classList.add('sel');
+
+  const value=el.textContent.trim();
+
+  if(group==='rules' || group==='aPlus'){
+    if(value==='Yes') el.classList.add('semantic-green');
+    if(value==='No') el.classList.add('semantic-red');
+  }
+
+  selected[group]=value;
+}
+
+function updateConfidenceColor(){
+  const input=document.getElementById('confidence');
+  const label=document.getElementById('confidenceValue');
+  if(!input || !label) return;
+
+  const value=Number(input.value)||0;
+
+  input.classList.remove('confidence-low','confidence-high','confidence-neutral');
+  label.classList.remove('confidence-low','confidence-high','confidence-neutral');
+
+  if(value < 6){
+    input.classList.add('confidence-low');
+    label.classList.add('confidence-low');
+  }else if(value > 6){
+    input.classList.add('confidence-high');
+    label.classList.add('confidence-high');
+  }else{
+    input.classList.add('confidence-neutral');
+    label.classList.add('confidence-neutral');
+  }
+}
+
+function emotionStatus(emotion){
+  const e=String(emotion||'').trim().toLowerCase();
+
+  if(['calm','confident'].includes(e)) return 'green';
+
+  if([
+    'fomo',
+    'fear',
+    'fearful',
+    'nervous',
+    'doubtful',
+    'impatient',
+    'revenge'
+  ].includes(e)) return 'red';
+
+  return 'neutral';
+}
+
+
+function toggle(el){
+
+  el.classList.toggle('sel');
+
+}
+
+
+function values(group){
+
+  return [
+    ...document.querySelectorAll(
+      `[data-group="${group}"] .chip.sel`
+    )
+  ].map(x=>x.textContent.trim());
+
+}
+
+
+function num(id){
+
+  return parseFloat(
+    document.getElementById(id).value
+  ) || 0;
+
+}
+
+
+/* =========================================================
+   SAVE TRADE
+   ========================================================= */
+
+function saveTrade(){
+  if(instrumentType==='Options' && (!selected.index || !selected.option)){ alert('Please select Index and CE/PE.'); return; }
+  if(instrumentType==='Equity' && (!document.getElementById('stock').value.trim() || !selected.side)){ alert('Please enter Stock and select BUY or SELL.'); return; }
+  if(!selected.rules || !selected.aPlus){ alert('Please select Rules followed and A+ setup.'); return; }
+  const candle=document.getElementById('candle').value.trim();
+  if(!candle){ alert('Please describe your entry candle / pattern.'); return; }
+  const ep=num('entryPrice'), xp=num('exitPrice'), q=num('qty');
+  if(!ep || !xp || !q){ alert('Please enter Entry price, Exit price and Quantity.'); return; }
+  const existing=editingId ? trades.find(x=>x.id===editingId) : null;
+  if(!editingId){
+    const today=new Date().toDateString();
+    if(trades.filter(x=>(x.tradeDate ? new Date(x.tradeDate+'T12:00:00').toDateString() : new Date(x.date).toDateString())===today).length>=2){ alert('You already recorded 2 trades today. Your rule is max 2 trades/day.'); return; }
+  }
+  const side=instrumentType==='Equity' ? selected.side : 'BUY';
+  const pnl=side==='SELL' ? (ep-xp)*q : (xp-ep)*q;
+  const tradeDate=document.getElementById('tradeDate').value || new Date().toISOString().slice(0,10);
+  const localDate=new Date(tradeDate+'T12:00:00');
+  const t={
+    id:editingId||Date.now(),
+    date:existing?existing.date:localDate.toISOString(),
+    tradeDate, instrumentType, index:selected.index, option:selected.option, strike:num('strike'), expiry:document.getElementById('expiry').value,
+    stock:document.getElementById('stock').value.trim(), side, entryTime:document.getElementById('entryTime').value, exitTime:document.getElementById('exitTime').value,
+    entryPrice:ep, exitPrice:xp, qty:q, capital:num('capital'), pnl, candle, why:document.getElementById('why').value,
+    emotion:values('emotion'), beforeOther:document.getElementById('beforeOther').value.trim(), confidence:num('confidence'), rules:selected.rules, aPlus:selected.aPlus,
+    thoughts:document.getElementById('thoughts').value, afterEmotion:values('afterEmotion'), afterOther:document.getElementById('afterOther').value.trim(),
+    interference:values('interference'), lesson:document.getElementById('lesson').value, screenshot:screenshotData||screenshotExisting||''
+  };
+  trades=editingId ? trades.map(x=>x.id===editingId?t:x) : [t,...trades];
+  localStorage.setItem('myTradingJournal',JSON.stringify(trades));
+  alert(editingId?'Trade updated.':'Trade saved.');
+  resetForm();
+  showPage('history',[...document.querySelectorAll('nav button')].find(b=>b.textContent.trim()==='History'));
+}
+
+/* =========================================================
+   RESET FORM
+   ========================================================= */
+
+function resetForm(){
+  document.querySelectorAll('input:not([type=range]),textarea').forEach(x=>x.value='');
+  document.getElementById('confidence').value=5;
+  document.getElementById('confidenceValue').textContent='5';
+  updateConfidenceColor();
+  document.querySelectorAll('.chip.sel').forEach(x=>x.classList.remove('sel'));
+  document.getElementById('beforeOther').classList.add('hidden');
+  document.getElementById('afterOther').classList.add('hidden');
+  document.getElementById('screenshotPreview').innerHTML='';
+  screenshotData=''; screenshotExisting='';
+  selected={index:'',option:'',candle:'',rules:'',aPlus:'',side:''};
+  editingId=null; instrumentType='Options'; setInstrument('Options');
+  document.getElementById('formTitle').textContent='Record trade';
+  document.getElementById('tradeDate').value=new Date().toISOString().slice(0,10);
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+
+function updateHome(){
+
+  let today =
+    new Date().toDateString();
+
+
+  let tt =
+    trades.filter(
+      x=>(x.tradeDate ? new Date(x.tradeDate+'T12:00:00').toDateString() : new Date(x.date).toDateString())===today
+    );
+
+
+  document.getElementById(
+    'todayTrades'
+  ).textContent =
+    tt.length+' / 2';
+
+
+  document.getElementById(
+    'totalTrades'
+  ).textContent =
+    trades.length;
+
+
+  let wins =
+    trades.filter(
+      x=>Number(x.pnl)>0
+    ).length;
+
+
+  document.getElementById(
+    'winRate'
+  ).textContent =
+    trades.length
+      ? (wins/trades.length*100).toFixed(0)+'%'
+      : '—';
+
+
+  let rr =
+    trades.length
+      ? trades.filter(
+          x=>x.rules==='Yes'
+        ).length / trades.length * 100
+      : 0;
+
+
+  document.getElementById(
+    'rulesRate'
+  ).textContent =
+    trades.length
+      ? rr.toFixed(0)+'%'
+      : '—';
+
+
+  document.getElementById(
+    'fomoCount'
+  ).textContent =
+    trades.filter(
+      x=>Array.isArray(x.emotion) &&
+         x.emotion.includes('FOMO')
+    ).length;
+
+
+  const todayPnl = tt.reduce((a,t)=>a+(Number(t.pnl)||0),0);
+  const todayPnlEl=document.getElementById('todayPnl');
+  todayPnlEl.textContent=money(todayPnl);
+  todayPnlEl.className=todayPnl>=0?'win':'loss';
+
+  const todayRulesEl=document.getElementById('todayRules');
+  const todayRuleRate = tt.length ? (tt.filter(x=>x.rules==='Yes').length / tt.length * 100) : null;
+  todayRulesEl.textContent = todayRuleRate===null ? '—' : todayRuleRate.toFixed(0)+'%';
+  todayRulesEl.classList.remove('win','loss');
+  if(todayRuleRate!==null) todayRulesEl.classList.add(todayRuleRate===100?'win':'loss');
+
+
+  document.getElementById(
+    'goalBar'
+  ).style.width =
+    Math.min(trades.length,100)+'%';
+
+
+  document.getElementById(
+    'goalCount'
+  ).textContent =
+    Math.min(trades.length,100)+' / 100 trades';
+
+
+  renderLatestTrades();
+
+  document.getElementById(
+    'goalText'
+  ).textContent =
+    trades.length>=100
+      ? '100 trades completed. Review your psychological pattern.'
+      : (
+          100-trades.length
+        )+' more trades to reach the first 100-trade review.';
+
+}
+
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+
+function renderHistory(){
+  const historyList=document.getElementById('historyList');
+  if(!trades.length){ historyList.innerHTML='<div class="empty">No trades yet.<br>Start with your first trade.</div>'; return; }
+  historyList.innerHTML=trades.map(t=>`
+    <div class="card trade">
+      <div class="row"><h3>${tradeTitle(t)}</h3><span class="pnl ${Number(t.pnl)>=0?'win':'loss'}">${money(t.pnl)}</span></div>
+      <p>${new Date(t.tradeDate ? t.tradeDate+'T12:00:00' : t.date).toLocaleDateString('en-IN')} • ${esc(t.instrumentType||'Options')} • ${esc(t.candle||'—')} • ${t.rules==='Yes'?'Rules ✓':'Rule violation ⚠️'}</p>
+      <p><b>Entry:</b> ₹${Number(t.entryPrice||0).toLocaleString('en-IN')} → <b>Exit:</b> ₹${Number(t.exitPrice||0).toLocaleString('en-IN')} • Qty ${t.qty||0}</p>
+      <p><b>Before:</b> ${esc((t.emotion||[]).join(', '))}${t.beforeOther?' • '+esc(t.beforeOther):''} • Confidence ${t.confidence||0}/10</p>
+      <p><b>After:</b> ${esc((t.afterEmotion||[]).join(', '))}${t.afterOther?' • '+esc(t.afterOther):''}</p>
+      <p><b>Lesson:</b> ${esc(t.lesson||'—')}</p>
+      ${t.screenshot?`<div class="screenshot-wrap"><img class="trade-thumb" src="${t.screenshot}" alt="Trade chart screenshot"><div class="screenshot-actions"><button class="secondary danger screenshot-delete" onclick="deleteScreenshot(${t.id})">🗑 Delete screenshot</button></div></div>`:''}
+      <div style="display:flex;gap:8px;margin-top:10px"><button class="secondary" onclick="editTrade(${t.id})">✏️ Edit</button><button class="secondary danger" onclick="deleteTrade(${t.id})">🗑 Delete</button></div>
+    </div>`).join('');
+}
+
+function renderLatestTrades(){
+  const el=document.getElementById('latestTrades'); if(!el)return;
+  const latest=trades.slice(0,2);
+  el.innerHTML=latest.length ? latest.map(t=>`<div class="day-trade-card"><div class="row"><b>${tradeTitle(t)}</b><span class="pnl ${Number(t.pnl)>=0?'win':'loss'}">${money(t.pnl)}</span></div><p class="muted">${new Date(t.tradeDate?t.tradeDate+'T12:00:00':t.date).toLocaleDateString('en-IN')} • ${esc(t.candle||'—')}</p><p class="muted"><b>Before:</b> ${esc((t.emotion||[]).join(', '))}${t.beforeOther?' • '+esc(t.beforeOther):''}</p><p class="muted"><b>After:</b> ${esc((t.afterEmotion||[]).join(', '))}${t.afterOther?' • '+esc(t.afterOther):''}</p>${t.screenshot?`<div class="screenshot-wrap"><img class="trade-thumb" src="${t.screenshot}" alt="Trade chart screenshot"><div class="screenshot-actions"><button class="secondary danger screenshot-delete" onclick="deleteScreenshot(${t.id})">🗑 Delete screenshot</button></div></div>`:''}</div>`).join('') : '<div class="empty">Your latest trades will appear here.</div>';
+}
+
+/* =========================================================
+   EDIT TRADE
+   ========================================================= */
+
+function setGroup(group,vals){
+
+  document
+    .querySelectorAll(
+      `[data-group="${group}"] .chip`
+    )
+    .forEach(el=>{
+
+      el.classList.toggle(
+        'sel',
+        vals.includes(
+          el.textContent.trim()
+        )
+      );
+
+    });
+
+}
+
+
+function editTrade(id){
+  const t=trades.find(x=>x.id===id); if(!t)return;
+  editingId=id; instrumentType=t.instrumentType||'Options'; setInstrument(instrumentType);
+  selected={index:t.index||'',option:t.option||'',candle:t.candle||'',rules:t.rules||'',aPlus:t.aPlus||'',side:t.side==='BUY'||t.side==='SELL'?t.side:''};
+  document.getElementById('stock').value=t.stock||''; document.getElementById('strike').value=t.strike||''; document.getElementById('expiry').value=t.expiry||'';
+  document.getElementById('tradeDate').value=t.tradeDate || new Date(t.date).toISOString().slice(0,10);
+  document.getElementById('entryTime').value=t.entryTime||''; document.getElementById('exitTime').value=t.exitTime||''; document.getElementById('entryPrice').value=t.entryPrice||''; document.getElementById('exitPrice').value=t.exitPrice||''; document.getElementById('qty').value=t.qty||''; document.getElementById('capital').value=t.capital||'';
+  document.getElementById('candle').value=t.candle||''; document.getElementById('why').value=t.why||''; document.getElementById('confidence').value=t.confidence||5; document.getElementById('confidenceValue').textContent=t.confidence||5; document.getElementById('thoughts').value=t.thoughts||''; document.getElementById('lesson').value=t.lesson||'';
+  document.getElementById('beforeOther').value=t.beforeOther||''; document.getElementById('afterOther').value=t.afterOther||'';
+  setGroup('index',[t.index]); setGroup('option',[t.option]); setGroup('side',[t.side]); setGroup('rules',[t.rules]); setGroup('aPlus',[t.aPlus]); setGroup('emotion',Array.isArray(t.emotion)?t.emotion:[]); setGroup('afterEmotion',Array.isArray(t.afterEmotion)?t.afterEmotion:[]); setGroup('interference',Array.isArray(t.interference)?t.interference:[]);
+  if(t.beforeOther){document.querySelector('[data-group="emotion"] .chip:last-child')?.classList.add('sel');document.getElementById('beforeOther').classList.remove('hidden');}
+  if(t.afterOther){document.querySelector('[data-group="afterEmotion"] .chip:last-child')?.classList.add('sel');document.getElementById('afterOther').classList.remove('hidden');}
+  screenshotExisting=t.screenshot||''; screenshotData=''; document.getElementById('screenshotPreview').innerHTML=t.screenshot?`<img class="preview-image" src="${t.screenshot}" alt="Saved trade screenshot"><div class="screenshot-actions"><button type="button" class="secondary danger screenshot-delete" onclick="deleteScreenshot(${t.id});screenshotExisting='';document.getElementById('screenshotPreview').innerHTML=''">🗑 Delete screenshot</button></div>`:'';
+  document.getElementById('formTitle').textContent='Edit trade';
+  showPage('add',[...document.querySelectorAll('nav button')].find(b=>b.textContent.includes('Trade')));
+}
+
+/* =========================================================
+   SCREENSHOT MANAGEMENT
+   ========================================================= */
+
+function deleteScreenshot(id){
+  // IMPORTANT: This function only removes the screenshot field.
+  // It NEVER removes the trade object itself.
+  const t = trades.find(x => String(x.id) === String(id));
+  if(!t || !t.screenshot) return;
+
+  if(!confirm(`Delete the screenshot for ${tradeTitle(t)}? The trade record will be kept.`)) return;
+
+  // Keep every other trade field exactly as-is.
+  t.screenshot = '';
+  localStorage.setItem('myTradingJournal', JSON.stringify(trades));
+
+  screenshotData = '';
+  screenshotExisting = '';
+
+  const preview = document.getElementById('screenshotPreview');
+  if(preview) preview.innerHTML = '';
+
+  renderHistory();
+  renderLatestTrades();
+  renderCalendar();
+  updateHome();
+}
+
+function deleteAllScreenshots(){
+  const screenshotTrades = trades.filter(t => !!t.screenshot);
+  const count = screenshotTrades.length;
+  if(!count){
+    alert('There are no saved screenshots to delete.');
+    return;
+  }
+
+  if(!confirm(`Delete all ${count} saved screenshot${count===1?'':'s'}? Your trade records will NOT be deleted.`)) return;
+
+  // Only clear the screenshot property. Do not filter, splice, or replace trades.
+  screenshotTrades.forEach(t => { t.screenshot = ''; });
+  localStorage.setItem('myTradingJournal', JSON.stringify(trades));
+
+  screenshotData = '';
+  screenshotExisting = '';
+  const preview = document.getElementById('screenshotPreview');
+  if(preview) preview.innerHTML = '';
+
+  renderHistory();
+  renderLatestTrades();
+  renderCalendar();
+  updateHome();
+}
+
+/* =========================================================
+   DELETE
+   ========================================================= */
+
+function deleteTrade(id){
+
+  const t =
+    trades.find(
+      x=>x.id===id
+    );
+
+  if(!t){
+    return;
+  }
+
+
+  if(
+    !confirm(
+      `Delete ${tradeTitle(t)} trade? This cannot be undone.`
+    )
+  ){
+    return;
+  }
+
+
+  trades =
+    trades.filter(
+      x=>x.id!==id
+    );
+
+
+  localStorage.setItem(
+    'myTradingJournal',
+    JSON.stringify(trades)
+  );
+
+
+  renderHistory();
+
+  updateHome();
+
+  renderPsych();
+
+  renderCalendar();
+
+}
+
+
+/* =========================================================
+   CALENDAR DATA
+   ========================================================= */
+
+function dailyPnlMap(y,m){
+
+  let map={};
+
+
+  trades.forEach(t=>{
+
+    let d =
+      new Date(t.date);
+
+
+    if(
+      d.getFullYear()===y &&
+      d.getMonth()===m
+    ){
+
+      let key =
+        d.getDate();
+
+
+      map[key] =
+        (map[key]||0) +
+        (Number(t.pnl)||0);
+
+    }
+
+  });
+
+
+  return map;
+
+}
+
+
+/* =========================================================
+   CHANGE MONTH
+   ========================================================= */
+
+function changeMonth(delta){
+
+  calendarDate.setMonth(
+    calendarDate.getMonth()+delta
+  );
+
+
+  renderCalendar();
+
+}
+
+
+/* =========================================================
+   GET HEATMAP CLASS
+   ========================================================= */
+
+function getHeatmapClass(v){
+
+  v = Number(v)||0;
+
+
+  /*
+     ZERO
+  */
+
+  if(v===0){
+    return 'calendar-zero';
+  }
+
+
+  /*
+     PROFIT
+  */
+
+  if(v>0){
+
+    let a=Math.abs(v);
+
+
+    if(a<500){
+      return 'calendar-profit-small';
+    }
+
+    if(a<2000){
+      return 'calendar-profit-medium';
+    }
+
+    if(a<5000){
+      return 'calendar-profit-large';
+    }
+
+    return 'calendar-profit-xlarge';
+
+  }
+
+
+  /*
+     LOSS
+  */
+
+  let a=Math.abs(v);
+
+
+  if(a<500){
+    return 'calendar-loss-small';
+  }
+
+  if(a<2000){
+    return 'calendar-loss-medium';
+  }
+
+  if(a<5000){
+    return 'calendar-loss-large';
+  }
+
+  return 'calendar-loss-xlarge';
+
+}
+
+
+/* =========================================================
+   RENDER CALENDAR
+   ========================================================= */
+
+function renderCalendar(){
+
+  const y =
+    calendarDate.getFullYear();
+
+  const m =
+    calendarDate.getMonth();
+
+
+  const names =
+    [
+      'Sun',
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat'
+    ];
+
+
+  const map =
+    dailyPnlMap(y,m);
+
+
+  const first =
+    new Date(y,m,1).getDay();
+
+
+  const days =
+    new Date(y,m+1,0).getDate();
+
+
+  const calendarTitle =
+    document.getElementById(
+      'calendarTitle'
+    );
+
+
+  const calendarGrid =
+    document.getElementById(
+      'calendarGrid'
+    );
+
+
+  calendarTitle.textContent =
+    calendarDate.toLocaleString(
+      'en-IN',
+      {
+        month:'long',
+        year:'numeric'
+      }
+    );
+
+
+  let cells='';
+
+
+  /*
+     WEEKDAY HEADERS
+  */
+
+  names.forEach(n=>{
+
+    cells += `
+
+      <div
+        style="
+          text-align:center;
+          font-size:10px;
+          font-weight:700;
+          color:#64748b;
+          padding:3px;
+        "
+      >
+        ${n}
+      </div>
+
+    `;
+
+  });
+
+
+  /*
+     EMPTY CELLS BEFORE FIRST DAY
+  */
+
+  for(
+    let i=0;
+    i<first;
+    i++
+  ){
+
+    cells += '<div></div>';
+
+  }
+
+
+  /*
+     DAYS
+  */
+
+  for(
+    let d=1;
+    d<=days;
+    d++
+  ){
+
+    let has =
+      Object.prototype.hasOwnProperty.call(
+        map,
+        d
+      );
+
+
+    let v =
+      has
+        ? Number(map[d])||0
+        : 0;
+
+
+    /*
+       HEATMAP CLASS
+    */
+
+    let heatClass =
+      has
+        ? getHeatmapClass(v)
+        : 'calendar-neutral';
+
+
+    /*
+       DAY'S TRADES
+    */
+
+    let dayTrades =
+      trades.filter(t=>{
+
+        let dt =
+          new Date(t.date);
+
+        return(
+          dt.getFullYear()===y &&
+          dt.getMonth()===m &&
+          dt.getDate()===d
+        );
+
+      });
+
+
+    let dayCount =
+      dayTrades.length;
+
+
+    /*
+       RULE BREAKS
+    */
+
+    let ruleBreaks =
+      dayTrades.filter(
+        t=>t.rules!=='Yes'
+      ).length;
+
+
+    /*
+       P&L LABEL
+    */
+
+    let dayLabel =
+      has
+        ? `${v>=0?'+':''}₹${Math.round(v).toLocaleString('en-IN')}`
+        : '';
+
+
+    /*
+       TRADE LABEL
+    */
+
+    let tradeLabel =
+      dayCount
+        ? `${dayCount} trade${dayCount>1?'s':''}`
+        : 'No trade';
+
+
+    /*
+       RULE LABEL
+    */
+
+    let ruleLabel =
+      ruleBreaks
+        ? `${ruleBreaks} rule break${ruleBreaks>1?'s':''}`
+        : (
+            dayCount
+              ? 'Rules ✓'
+              : ''
+          );
+
+
+    /*
+       IMPORTANT:
+
+       The color is controlled by the CSS class.
+
+       !important is used in the CSS above so
+       browser/default button styling cannot
+       turn profitable days grey.
+    */
+
+    cells += `
+
+      <button
+        class="calendar-day ${heatClass}"
+        onclick="openDay(${y},${m},${d})"
+      >
+
+        <div class="calendar-day-number">
+          ${d}
+        </div>
+
+
+        <div class="calendar-pnl">
+          ${dayLabel}
+        </div>
+
+
+        <div class="calendar-trades">
+          ${tradeLabel}
+        </div>
+
+
+        ${
+          ruleLabel
+            ? `
+              <div class="calendar-rules">
+                ${ruleLabel}
+              </div>
+            `
+            : `
+              <div style="height:9px"></div>
+            `
+        }
+
+      </button>
+
+    `;
+
+  }
+
+
+  calendarGrid.innerHTML =
+    cells;
+
+
+  /*
+     MONTH STATISTICS
+  */
+
+  let monthTrades =
+    trades.filter(t=>{
+
+      let d =
+        new Date(t.date);
+
+      return(
+        d.getFullYear()===y &&
+        d.getMonth()===m
+      );
+
+    });
+
+
+  let green =
+    Object.values(map)
+      .filter(v=>Number(v)>0)
+      .length;
+
+
+  let red =
+    Object.values(map)
+      .filter(v=>Number(v)<0)
+      .length;
+
+
+  let monthPnlValue =
+    monthTrades.reduce(
+      (a,t)=>
+        a+(Number(t.pnl)||0),
+      0
+    );
+
+
+  document.getElementById(
+    'greenDays'
+  ).textContent =
+    green;
+
+
+  document.getElementById(
+    'redDays'
+  ).textContent =
+    red;
+
+
+  document.getElementById(
+    'monthPnl'
+  ).textContent =
+    (
+      monthPnlValue>=0
+        ? '+'
+        : ''
+    )+
+    '₹'+
+    Math.round(
+      monthPnlValue
+    ).toLocaleString('en-IN');
+
+
+  document.getElementById(
+    'noTradeDays'
+  ).textContent =
+    days-green-red;
+
+}
+
+
+/* =========================================================
+   OPEN DAY
+   ========================================================= */
+
+function openDay(y,m,d){
+  const dayTrades=trades.filter(t=>{const x=new Date(t.tradeDate?t.tradeDate+'T12:00:00':t.date);return x.getFullYear()===y&&x.getMonth()===m&&x.getDate()===d;});
+  if(!dayTrades.length){alert('No trades recorded for this day.');return;}
+  const total=dayTrades.reduce((a,t)=>a+(Number(t.pnl)||0),0);
+  const modal=document.createElement('div'); modal.className='day-modal';
+  modal.innerHTML=`<div class="day-modal-card"><div class="row"><h2>${new Date(y,m,d).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</h2><button class="secondary" onclick="this.closest('.day-modal').remove()">Close</button></div><p><b>${dayTrades.length}</b> trade${dayTrades.length>1?'s':''} • Net P&amp;L: <span class="pnl ${total>=0?'win':'loss'}">${money(total)}</span></p>${dayTrades.map(t=>`<div class="day-trade-card"><div class="row"><b>${tradeTitle(t)}</b><span class="pnl ${Number(t.pnl)>=0?'win':'loss'}">${money(t.pnl)}</span></div><p class="muted">${esc(t.instrumentType||'Options')} • Entry ₹${t.entryPrice||0} → Exit ₹${t.exitPrice||0} • Qty ${t.qty||0}</p><p class="muted"><b>Entry candle:</b> ${esc(t.candle||'—')}</p><p class="muted"><b>Before:</b> ${esc((t.emotion||[]).join(', '))}${t.beforeOther?' • '+esc(t.beforeOther):''}</p><p class="muted"><b>After:</b> ${esc((t.afterEmotion||[]).join(', '))}${t.afterOther?' • '+esc(t.afterOther):''}</p><p class="muted"><b>Rules:</b> ${t.rules==='Yes'?'Followed ✓':'Violation ⚠️'} • <b>A+:</b> ${esc(t.aPlus||'—')}</p>${t.screenshot?`<div class="screenshot-wrap"><img class="trade-thumb" src="${t.screenshot}" alt="Trade chart screenshot"><div class="screenshot-actions"><button class="secondary danger screenshot-delete" onclick="deleteScreenshot(${t.id});this.closest('.day-modal').remove();openDay(${y},${m},${d})">🗑 Delete screenshot</button></div></div>`:''}</div>`).join('')}</div>`;
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();}); document.body.appendChild(modal);
+}
+
+function orderedByDate(){
+  return [...trades].sort((a,b)=>new Date(a.tradeDate?a.tradeDate+'T12:00:00':a.date)-new Date(b.tradeDate?b.tradeDate+'T12:00:00':b.date));
+}
+
+// Compares the earlier half of a chronological trade list against the recent
+// half for a given yes/no predicate, and returns 'win' if it's flat-or-improving
+// or 'loss' if it's declining. Returns '' when there isn't enough data yet.
+function trendClass(ordered,predicate,minTrades){
+  const n=ordered.length;
+  if(n<(minTrades||6)) return '';
+  const mid=Math.floor(n/2);
+  const rate=arr=>arr.length? arr.filter(predicate).length/arr.length*100 : 0;
+  const earlier=rate(ordered.slice(0,mid)), recent=rate(ordered.slice(mid));
+  return recent>=earlier ? 'win' : 'loss';
+}
+
+function drawAreaChart(canvasId, values, formatter){
+  const canvas=document.getElementById(canvasId); if(!canvas)return;
+  const rect=canvas.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; const w=Math.max(320,rect.width); const h=Math.max(220,rect.height); canvas.width=w*dpr; canvas.height=h*dpr; const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,h);
+  if(!values.length){ctx.fillStyle='#64748b';ctx.font='13px system-ui';ctx.fillText('Record trades to see this chart.',20,30);return;}
+  const pad={l:48,r:14,t:16,b:30}; const cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  const min=Math.min(0,...values), max=Math.max(1,...values); const range=(max-min)||1;
+  ctx.strokeStyle='#e5e7eb';ctx.lineWidth=1; for(let i=0;i<=4;i++){const y=pad.t+ch*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();}
+  const pts=values.map((v,i)=>[pad.l+(values.length===1?cw/2:cw*i/(values.length-1)),pad.t+(max-v)/range*ch]);
+  for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],up=values[i+1]>=values[i];ctx.beginPath();ctx.moveTo(a[0],pad.t+ch);ctx.lineTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(b[0],pad.t+ch);ctx.closePath();ctx.fillStyle=up?'rgba(22,163,74,.18)':'rgba(220,38,38,.18)';ctx.fill();ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.strokeStyle=up?'#16a34a':'#dc2626';ctx.lineWidth=2.5;ctx.stroke();}
+  ctx.fillStyle='#64748b';ctx.font='10px system-ui'; ctx.fillText(formatter(max),4,pad.t+4);ctx.fillText(formatter(min),4,pad.t+ch); ctx.fillText('1',pad.l,h-8);ctx.fillText(String(values.length),w-pad.r-8,h-8);
+}
+
+function renderAnalytics(){
+  const ordered=orderedByDate();
+  let rule=0; const ruleVals=ordered.map((t,i)=>{if(t.rules==='Yes')rule++; return Math.min(100, Math.max(0, (rule/(i+1))*100));});
+  let cum=0; const pnlVals=ordered.map(t=>cum+=Number(t.pnl)||0);
+  drawAreaChart('rulesChart',ruleVals,v=>Math.round(v)+'%'); drawAreaChart('pnlChart',pnlVals,v=>'₹'+Math.round(v).toLocaleString('en-IN'));
+  const wins=ordered.filter(t=>Number(t.pnl)>0).map(t=>Number(t.pnl)); const losses=ordered.filter(t=>Number(t.pnl)<0).map(t=>Number(t.pnl));
+  const total=ordered.reduce((a,t)=>a+(Number(t.pnl)||0),0);
+  document.getElementById('analyticsPnl').textContent=money(total); document.getElementById('analyticsPnl').className=total>=0?'win':'loss';
+  const winRateEl=document.getElementById('analyticsWinRate');
+  winRateEl.textContent=ordered.length?(wins.length/ordered.length*100).toFixed(0)+'%':'—';
+  winRateEl.classList.remove('win','loss');
+  const winTrend=trendClass(ordered,t=>Number(t.pnl)>0);
+  if(winTrend) winRateEl.classList.add(winTrend);
+  document.getElementById('analyticsAvgWin').textContent=wins.length?money(wins.reduce((a,v)=>a+v,0)/wins.length):'₹0'; document.getElementById('analyticsAvgLoss').textContent=losses.length?money(losses.reduce((a,v)=>a+v,0)/losses.length):'₹0';
+  generateFeedback(ordered);
+}
+
+function generateFeedback(ordered){
+  const el=document.getElementById('feedbackText');
+  const card=document.getElementById('feedbackCard');
+  card.classList.remove('tone-good','tone-warn','tone-bad');
+  const n=ordered.length;
+  if(n<5){
+    el.innerHTML='Record a few more trades — feedback becomes meaningful once you have at least 5 logged.';
+    return;
+  }
+
+  const rulesFollowed=ordered.filter(t=>t.rules==='Yes').length;
+  const ruleRate=rulesFollowed/n*100;
+
+  // Trend: compare the earlier half of the journal to the more recent half
+  const mid=Math.floor(n/2);
+  const earlier=ordered.slice(0,mid);
+  const recent=ordered.slice(mid);
+  const rate=arr=>arr.length? arr.filter(t=>t.rules==='Yes').length/arr.length*100 : ruleRate;
+  const earlierRate=rate(earlier), recentRate=rate(recent);
+  const delta=recentRate-earlierRate;
+
+  const fomoRate=ordered.filter(t=>Array.isArray(t.emotion)&&t.emotion.includes('FOMO')).length/n*100;
+
+  let tone='good', line='';
+
+  if(ruleRate>=85){
+    tone='good';
+    line=`Your rule adherence is strong — you followed your plan on <b class="feedback-good">${ruleRate.toFixed(0)}%</b> of your last ${n} trades. This is the kind of consistency that compounds over time.`;
+  } else if(ruleRate>=65){
+    tone='warn';
+    line=`Your rule adherence is decent but inconsistent — you followed your plan on <b class="feedback-warn">${ruleRate.toFixed(0)}%</b> of your last ${n} trades. Tightening this further is likely your highest-leverage improvement right now.`;
+  } else {
+    tone='bad';
+    line=`Your rule adherence needs attention — you only followed your plan on <b class="feedback-bad">${ruleRate.toFixed(0)}%</b> of your last ${n} trades. Most of your inconsistency is probably costing you more than any single bad setup would.`;
+  }
+
+  if(n>=10){
+    if(delta>=10){
+      line+=` It's trending upward too — up from ${earlierRate.toFixed(0)}% earlier in your journal to ${recentRate.toFixed(0)}% recently, so whatever you changed is working.`;
+    } else if(delta<=-10){
+      line+=` It's also trending down — from ${earlierRate.toFixed(0)}% earlier to ${recentRate.toFixed(0)}% recently, worth a check-in on what's changed lately.`;
+    }
+  }
+
+  if(fomoRate>=25){
+    line+=` FOMO shows up in <b class="feedback-warn">${fomoRate.toFixed(0)}%</b> of trades — worth watching for entries chased late rather than planned.`;
+  }
+
+  card.classList.add('tone-'+tone);
+  el.innerHTML=line;
+}
+
+/* =========================================================
+   PSYCHOLOGY
+   ========================================================= */
+
+function renderPsych(){
+
+  let n =
+    trades.length;
+
+  const psychOrdered = orderedByDate();
+
+
+  const psychRulesEl = document.getElementById('psychRules');
+  psychRulesEl.textContent =
+    n
+      ? (
+          trades.filter(
+            x=>x.rules==='Yes'
+          ).length/n*100
+        ).toFixed(0)+'%'
+      : '—';
+  psychRulesEl.classList.remove('win','loss');
+  const rulesTrend = trendClass(psychOrdered, x=>x.rules==='Yes');
+  if(rulesTrend) psychRulesEl.classList.add(rulesTrend);
+
+
+  const psychAEl = document.getElementById('psychA');
+  psychAEl.textContent =
+    n
+      ? (
+          trades.filter(
+            x=>x.aPlus==='Yes'
+          ).length/n*100
+        ).toFixed(0)+'%'
+      : '—';
+  psychAEl.classList.remove('win','loss');
+  const aPlusTrend = trendClass(psychOrdered, x=>x.aPlus==='Yes');
+  if(aPlusTrend) psychAEl.classList.add(aPlusTrend);
+
+
+  document.getElementById(
+    'psychFomo'
+  ).textContent =
+    trades.filter(
+      x=>
+        Array.isArray(x.emotion) &&
+        x.emotion.includes('FOMO')
+    ).length;
+
+
+  document.getElementById(
+    'psychInterf'
+  ).textContent =
+    trades.filter(
+      x=>
+        Array.isArray(x.interference) &&
+        x.interference.length &&
+        !x.interference.includes('None')
+    ).length;
+
+
+  let map={};
+
+
+  trades.forEach(t=>{
+
+    let emotions =
+      Array.isArray(t.emotion)
+        ? t.emotion
+        : [];
+
+
+    emotions.forEach(e=>{
+
+      if(!map[e]){
+
+        map[e]={
+          n:0,
+          w:0,
+          p:0
+        };
+
+      }
+
+
+      map[e].n++;
+
+
+      if(Number(t.pnl)>0){
+        map[e].w++;
+      }
+
+
+      map[e].p +=
+        Number(t.pnl)||0;
+
+    });
+
+  });
+
+
+  let emotionTable =
+    document.getElementById(
+      'emotionTable'
+    );
+
+
+  if(Object.keys(map).length){
+
+    emotionTable.innerHTML =
+      '<table>'+
+      '<tr>'+
+      '<th>Emotion</th>'+
+      '<th>Trades</th>'+
+      '<th>Win rate</th>'+
+      '<th>P&L</th>'+
+      '</tr>'+
+
+      Object.entries(map)
+        .sort(
+          (a,b)=>
+            b[1].n-a[1].n
+        )
+        .map(
+          ([e,v])=>
+            `<tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+                  <span>${esc(e)}</span>
+                  ${
+                    emotionStatus(e)==='green'
+                      ? '<span class="emotion-flag green">🟢 Healthy</span>'
+                      : emotionStatus(e)==='red'
+                        ? '<span class="emotion-flag red">🔴 Risk</span>'
+                        : '<span class="emotion-flag neutral">⚪ Neutral</span>'
+                  }
+                </div>
+              </td>
+              <td>${v.n}</td>
+              <td>${(v.w/v.n*100).toFixed(0)}%</td>
+              <td>
+                ${v.p>=0?'+':''}
+                ₹${Math.round(v.p).toLocaleString('en-IN')}
+              </td>
+            </tr>`
+        )
+        .join('')+
+
+      '</table>';
+
+  }
+  else{
+
+    emotionTable.innerHTML =
+      '<div class="empty">Your emotional patterns will appear here after you record trades.</div>';
+
+  }
+
+
+  /*
+     Last 25 vs previous 25
+  */
+
+  let a =
+    trades.slice(25,50);
+
+  let b =
+    trades.slice(0,25);
+
+
+  let comparison =
+    document.getElementById(
+      'comparison'
+    );
+
+
+  if(n<50){
+
+    comparison.innerHTML =
+      '<div class="empty">Complete at least 50 trades to compare two 25-trade periods.</div>';
+
+    return;
+
+  }
+
+
+  let rate =
+    x=>
+      x.length
+        ? x.filter(
+            t=>t.rules==='Yes'
+          ).length/x.length*100
+        : 0;
+
+
+  comparison.innerHTML = `
+
+    <table>
+
+      <tr>
+        <th></th>
+        <th>Older 25</th>
+        <th>Recent 25</th>
+      </tr>
+
+      <tr>
+        <td>Rule adherence</td>
+        <td>${rate(a).toFixed(0)}%</td>
+        <td>${rate(b).toFixed(0)}%</td>
+      </tr>
+
+      <tr>
+        <td>FOMO trades</td>
+
+        <td>
+          ${a.filter(
+            t=>
+              Array.isArray(t.emotion) &&
+              t.emotion.includes('FOMO')
+          ).length}
+        </td>
+
+        <td>
+          ${b.filter(
+            t=>
+              Array.isArray(t.emotion) &&
+              t.emotion.includes('FOMO')
+          ).length}
+        </td>
+      </tr>
+
+      <tr>
+        <td>Interference</td>
+
+        <td>
+          ${a.filter(
+            t=>
+              Array.isArray(t.interference) &&
+              t.interference.length &&
+              !t.interference.includes('None')
+          ).length}
+        </td>
+
+        <td>
+          ${b.filter(
+            t=>
+              Array.isArray(t.interference) &&
+              t.interference.length &&
+              !t.interference.includes('None')
+          ).length}
+        </td>
+      </tr>
+
+    </table>
+
+  `;
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function esc(s){
+
+  return String(s).replace(
+    /[&<>"']/g,
+    m=>({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#039;'
+    }[m])
+  );
+
+}
+
+
+/* =========================================================
+   INITIAL LOAD
+   ========================================================= */
+
+if(document.getElementById('tradeDate')) document.getElementById('tradeDate').value=new Date().toISOString().slice(0,10);
+updateHome();
+renderCalendar();
+renderAnalytics();
+
+
+
+
+/* =========================================================
+   ENHANCED ANALYTICS — detailed hover statistics
+   ========================================================= */
+
+function analyticsFmtMoney(v){
+  v = Number(v)||0;
+  return (v>=0?'+':'') + '₹' + Math.round(v).toLocaleString('en-IN');
+}
+
+function analyticsFmtPct(v){
+  return Number(v||0).toFixed(0) + '%';
+}
+
+function analyticsDrawInteractive(canvas, points, options){
+  if(!canvas || !points || !points.length) return;
+
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  const W=Math.max(300,rect.width);
+  const H=Math.max(220,rect.height);
+  canvas.width=W*dpr;
+  canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  const pad={l:54,r:20,t:24,b:42};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+
+  const vals=points.map(p=>Number(p.value)||0);
+  let min=options.fixedMin!=null?Number(options.fixedMin):Math.min(...vals);
+  let max=options.fixedMax!=null?Number(options.fixedMax):Math.max(...vals);
+  if(min===max){ min-=1; max+=1; }
+  if(options.fixedMin==null && options.fixedMax==null){
+    const extra=(max-min)*0.12 || 1;
+    min-=extra; max+=extra;
+  }
+
+  const x=i=>pad.l+(points.length===1?cw/2:(i/(points.length-1))*cw);
+  const y=v=>pad.t+(1-(v-min)/(max-min))*ch;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.font='11px Arial';
+  ctx.lineWidth=1;
+
+  // Grid + y labels
+  for(let g=0;g<=4;g++){
+    const yy=pad.t+(g/4)*ch;
+    const val=max-((max-min)*g/4);
+    ctx.strokeStyle='#eeeaf5';
+    ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(W-pad.r,yy);ctx.stroke();
+    ctx.fillStyle='#858998';
+    ctx.textAlign='right';
+    ctx.fillText(options.formatY(val),pad.l-8,yy+4);
+  }
+
+  // Baseline where meaningful
+  if(min<0 && max>0){
+    const yy=y(0);
+    ctx.strokeStyle='#d9d3e5';
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(W-pad.r,yy);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // X labels
+  const labelCount=Math.min(7,points.length);
+  for(let j=0;j<labelCount;j++){
+    const idx=labelCount===1?0:Math.round(j*(points.length-1)/(labelCount-1));
+    const xx=x(idx);
+    ctx.fillStyle='#858998';
+    ctx.textAlign='center';
+    ctx.fillText(points[idx].label,xx,H-pad.b+23);
+  }
+
+  // Area
+  const grad=ctx.createLinearGradient(0,pad.t,0,H-pad.b);
+  grad.addColorStop(0,options.areaTop||'rgba(167,139,250,.22)');
+  grad.addColorStop(1,'rgba(167,139,250,.015)');
+  ctx.beginPath();
+  points.forEach((p,i)=>i?ctx.lineTo(x(i),y(p.value)):ctx.moveTo(x(i),y(p.value)));
+  ctx.lineTo(x(points.length-1),H-pad.b);
+  ctx.lineTo(x(0),H-pad.b);
+  ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+
+  // Segments: green improvement, red deterioration
+  for(let i=1;i<points.length;i++){
+    ctx.beginPath();
+    ctx.moveTo(x(i-1),y(points[i-1].value));
+    ctx.lineTo(x(i),y(points[i].value));
+    ctx.strokeStyle=points[i].value>=points[i-1].value?'#16a34a':'#dc2626';
+    ctx.lineWidth=2.5;ctx.stroke();
+  }
+
+  // Points
+  points.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(x(i),y(p.value),3.5,0,Math.PI*2);
+    ctx.fillStyle='#ffffff';ctx.fill();
+    ctx.strokeStyle=(i===0||p.value>=points[i-1].value)?'#16a34a':'#dc2626';
+    ctx.lineWidth=2;ctx.stroke();
+  });
+
+  // Hover
+  const tip=canvas.parentElement.querySelector('.analytics-tooltip');
+  function show(e){
+    const r=canvas.getBoundingClientRect();
+    const mx=e.clientX-r.left;
+    let best=0,dist=Infinity;
+    points.forEach((p,i)=>{
+      const d=Math.abs(x(i)-mx);
+      if(d<dist){dist=d;best=i;}
+    });
+    if(dist>Math.max(35,cw/Math.max(points.length,1))) { if(tip) tip.style.display='none'; return; }
+
+    const p=points[best];
+    const previous=best?points[best-1].value:null;
+    const change=previous===null?null:p.value-previous;
+    const changePct=previous===null||previous===0?null:(change/Math.abs(previous))*100;
+
+    if(tip){
+      tip.innerHTML =
+        '<strong>'+p.label+'</strong>'+
+        '<div class="stat-row"><span>Value</span><b>'+options.formatY(p.value)+'</b></div>'+
+        (p.meta||'')+
+        (change===null?'':'<div class="stat-row"><span>Change</span><b class="'+(change>=0?'positive':'negative')+'">'+
+          (change>=0?'+':'')+options.formatY(change)+
+          (changePct===null?'':' ('+(changePct>=0?'+':'')+changePct.toFixed(1)+'%)')+
+          '</b></div>');
+      tip.style.display='block';
+
+      const tw=tip.offsetWidth||200;
+      let left=x(best)+12;
+      if(left+tw>W) left=x(best)-tw-12;
+      tip.style.left=Math.max(6,left)+'px';
+      tip.style.top=Math.max(6,Math.min(H-110,y(p.value)-45))+'px';
+    }
+    canvas._hoverIndex=best;
+    // redraw marker
+    drawHover();
+  }
+
+  function drawHover(){
+    if(canvas._hoverIndex==null) return;
+    const i=canvas._hoverIndex;
+    ctx.beginPath();ctx.arc(x(i),y(points[i].value),6,0,Math.PI*2);
+    ctx.strokeStyle='#7c6aa5';ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x(i),pad.t);ctx.lineTo(x(i),H-pad.b);
+    ctx.strokeStyle='rgba(124,106,165,.22)';ctx.lineWidth=1;ctx.stroke();
+  }
+
+  canvas.onmousemove=show;
+  canvas.onmouseleave=function(){
+    canvas._hoverIndex=null;
+    if(tip)tip.style.display='none';
+    // redraw without hover by calling the renderer again
+    analyticsDrawInteractive(canvas,points,options);
+  };
+}
+
+/* Add detailed stats panels to existing analytics charts */
+function enhanceAnalyticsCharts(){
+  const canvases=[...document.querySelectorAll('canvas')].filter(c=>{
+    const r=c.getBoundingClientRect();
+    return r.width>250 && r.height>120;
+  });
+
+  // Only enhance canvases belonging to Analytics; avoid touching unrelated canvases.
+  canvases.forEach(canvas=>{
+    const parent=canvas.parentElement;
+    if(!parent || parent.dataset.analyticsEnhanced==='1') return;
+    const heading=(parent.parentElement?.innerText||'')+' '+(parent.previousElementSibling?.innerText||'');
+    if(!/P&L|rule|adherence|analytics/i.test(heading)) return;
+
+    parent.dataset.analyticsEnhanced='1';
+    parent.classList.add('analytics-chart-wrap');
+
+    const tip=document.createElement('div');
+    tip.className='analytics-tooltip';
+    parent.appendChild(tip);
+
+    // Extract common chart data from the canvas owner's surrounding object where possible.
+    // The existing chart remains intact; hover provides a useful point readout.
+    const title=heading.toLowerCase().includes('rule')?'Rule adherence':'P&L';
+    const ordered=(typeof orderedByDate==='function'?orderedByDate():trades||[]);
+    const rows=ordered;
+
+    let points;
+    if(title==='P&L'){
+      let cum=0;
+      points=rows.map((t,i)=>{
+        cum+=Number(t.pnl)||0;
+        return {
+          label:t.date||('Trade '+(i+1)),
+          value:cum,
+          meta:
+            '<div class="stat-row"><span>Trade P&L</span><b class="'+((Number(t.pnl)||0)>=0?'positive':'negative')+'">'+
+            analyticsFmtMoney(t.pnl)+'</b></div>'+
+            '<div class="stat-row"><span>Trade #</span><b>'+(i+1)+'</b></div>'
+        };
+      });
+      analyticsDrawInteractive(canvas,points,{
+        formatY:analyticsFmtMoney
+      });
+    }else{
+      let yes=0;
+      points=rows.map((t,i)=>{
+        if(t.rules==='Yes')yes++;
+        const pct=rows.length?yes/(i+1)*100:0;
+        return {
+          label:t.date||('Trade '+(i+1)),
+          value:pct,
+          meta:
+            '<div class="stat-row"><span>Rules followed</span><b>'+yes+' / '+(i+1)+'</b></div>'+
+            '<div class="stat-row"><span>This trade</span><b>'+(t.rules||'—')+'</b></div>'+
+            '<div class="stat-row"><span>Confidence</span><b>'+(t.confidence??'—')+'/10</b></div>'
+        };
+      });
+      analyticsDrawInteractive(canvas,points,{
+        formatY:analyticsFmtPct,
+        areaTop:'rgba(167,139,250,.18)',
+        fixedMin:0,
+        fixedMax:100
+      });
+    }
+  });
+}
+
+// Re-run after analytics renders and after resize.
+const _originalRenderAnalytics = window.renderAnalytics;
+if(typeof _originalRenderAnalytics==='function'){
+  window.renderAnalytics=function(){
+    _originalRenderAnalytics.apply(this,arguments);
+    setTimeout(enhanceAnalyticsCharts,50);
+  };
+}
+window.addEventListener('resize',()=>setTimeout(enhanceAnalyticsCharts,80));
+
+</script>
+
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));}</script>
+</body>
+</html>
